@@ -1,45 +1,45 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-text1 = 'It was obvious that Remus wasn\'t talking to Harry. He immediately reached for the wand, and moved his right hand back over it as though he wanted nothing more than a good time on her part. She made no move against him despite how much she leaned in close with one of the brothers while making small talk about their lives before going silent again. It took just two quick strokes from Dumbledore\'s fingers through Snape who soon collapsed into silence behind them all like an exhausted horse after losing nearly every battle they had ever been involved or fought by blood—even if Voldemort never spoke up once between seasons three-five due…well fuck off then'
-#text2 = 'He ran to the edge of their camp, running up it in a circle and pulling out his wand. Voldemort spun around at that moment. He was already halfway down there before he noticed they were gone. "Look who's back," said Harry with amusement as soon Asgore appeared next door on some rubble facing an empty building above them; A large piece for which anyone could make muggle bombs if necessary, along side plenty more stuff from Dumbledore'S school supplies collection – presumably those found by Snape… but still nothing like this Hogwarts house full…… Except not quite…. The boy sighed deeply just then realizing why Ginny had taken him so'
-#text3 = '"You know I wouldn? You should see what these Slytherins have done here! Just look!" Hermione said, looking up to find Draco standing over her. He reached into his robes and pulled out a black book that appeared slightly bigger than hers as he stared at it in disbelief for several moments. She shrugged off the surprise but found herself feeling awkward about doing so just then when she heard 'happening' from outside of Hogwarts – they had been there already."No," Harry offered dismissively "Hermione needs your help with something else you can give me if we need anything more before going back home later on today.""I'll take care now; let's go get some dinner first-"Ron laughed loudly like an idiot'
+# see https://www.tensorflow.org/api_docs/python/tf/Tensor#__len__
+# see https://gist.github.com/mickuehl/56e6b83b2f14408a1c1e386c55069bfb
+
 
 # setup imports to use the model
 from transformers import TFGPT2LMHeadModel, GPT2Tokenizer
+from tensorflow import concat
+
+model_dir = "../datasets/output"
+model = TFGPT2LMHeadModel.from_pretrained(model_dir, from_pt=True)
+tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
 
 def hack():
  
     prompt = '"You know I wouldn? You should see what these Slytherins have done here! Just look!" Hermione said,'
     
-    #model = TFGPT2LMHeadModel.from_pretrained("../datasets/output", from_pt=True)
-    tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
     input_word_vect = tokenizer.encode(prompt, return_tensors='tf')
+    
+    print(input_word_vect)
+    print(input_word_vect.shape)
 
+    vect = concat([input_word_vect, input_word_vect],1)
 
-    txt1 = tokenizer.decode(input_word_vect[0], skip_special_tokens=True)
-    words1 = txt1.split(' ')
+    #txt1 = tokenizer.decode(vect[0], skip_special_tokens=True)
     
     print("")
-    print("{}".format(txt1))
+    print(input_word_vect)
 
     print("")
-    print(words1)
+    print(vect)
+
+    vect2 = concat([vect, input_word_vect],1)
 
     print("")
-    print(input_word_vect[0])
+    print(vect2)
 
-
-    n = len(input_word_vect[0]) - 6
-    prompt2 = tokenizer.decode(input_word_vect[0][n:], skip_special_tokens=True)
-    print("")
-    print(prompt2)
-
-    print("")
-    print(input_word_vect[0][n:])
     
 
-def generate():
+def generate2():
  
     model = TFGPT2LMHeadModel.from_pretrained("../datasets/output", from_pt=True)
     tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
@@ -97,6 +97,79 @@ def generate():
     print("")
     print("{}".format(txt2))
 
+
+def generate(prompt, max_words):
+    txt = model.generate(
+        prompt, 
+        max_length=max_words,  
+        num_return_sequences=1,
+        no_repeat_ngram_size=2,
+        repetition_penalty=1.5,
+        top_p=0.92,
+        temperature=.85,
+        do_sample=True,
+        top_k=125,
+        early_stopping=True
+    )
+    return txt
+
+
+
+def generate_text2(prompt):
+    i = 0
     
+    prompt_words = 8
+    n_word = 300
+
+    txt = tokenizer.encode(prompt, return_tensors='tf')
+    prompt_tokens = tokenizer.encode(prompt, return_tensors='tf')
+
+    while i < 2:
+        i += 1
+        print("Iteration {}".format(i))
+        print("")
+
+        txt_generated = generate(prompt_tokens, n_word)
+        txt = concat([txt, txt_generated[0][prompt_words:]],0)
+
+        n = len(txt_generated[0]) - prompt_words
+        prompt_tokens = tokenizer.decode(txt_generated[0][n:], skip_special_tokens=True)
+
+    #txt1 = tokenizer.decode(txt[0], skip_special_tokens=True)
+    print(txt)
+    #print("{}".format(txt1))
+
+
+def generate_text(prompt):
+    i = 1
+
+    prompt_words = 8
+    n_word = 300
+
+    print("Iteration {}".format(i))
+    print("")
+
+    prompt_tokens = tokenizer.encode(prompt, return_tensors='tf')
+    txt = generate(prompt_tokens, n_word)[0]
+    
+    while i < 2:
+        i += 1
+        print("Iteration {}".format(i))
+        print("")
+
+        txt_generated = generate(prompt_tokens, n_word)
+        txt2 = txt_generated[0][prompt_words:]
+
+        txt = concat([txt, txt2],0)
+
+        n = len(txt_generated[0]) - prompt_words
+        prompt_tokens = tokenizer.decode(txt_generated[0][n:], skip_special_tokens=True)
+
+    gen_text = tokenizer.decode(txt, skip_special_tokens=True)
+    print("{}".format(gen_text))
+
+
 if __name__ == "__main__":
-    generate()
+    prompt = '"You know I wouldn? You should see what these Slytherins have done here! Just look!" Hermione said,'
+    
+    generate_text(prompt)

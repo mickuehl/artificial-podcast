@@ -1,25 +1,24 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-#from transformers import GPT2Tokenizer, TFGPT2Model, GPT2LMHeadModel, TFGPT2LMHeadModel
-#from transformers import set_seed, pipeline
-
+# see https://www.tensorflow.org/api_docs/python/tf/Tensor#__len__
+# see https://gist.github.com/mickuehl/56e6b83b2f14408a1c1e386c55069bfb
 
 # setup imports to use the model
 from transformers import TFGPT2LMHeadModel, GPT2Tokenizer
+from tensorflow import concat
 
-def generate():
- 
-    prompt = 'well fuck off then'
-    
-    model = TFGPT2LMHeadModel.from_pretrained("./datasets/output", from_pt=True)
-    tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
-    input_word_vect = tokenizer.encode(prompt, return_tensors='tf')
+model_dir = "./datasets/output"
 
-    generated_text = model.generate(
-        input_word_vect, 
-        max_length=150,  
-        num_return_sequences=5,
+model = TFGPT2LMHeadModel.from_pretrained(model_dir, from_pt=True)
+tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+
+
+def generate(prompt, max_words):
+    txt = model.generate(
+        prompt, 
+        max_length=max_words,  
+        num_return_sequences=1,
         no_repeat_ngram_size=2,
         repetition_penalty=1.5,
         top_p=0.92,
@@ -28,11 +27,41 @@ def generate():
         top_k=125,
         early_stopping=True
     )
+    return txt
 
-    for i, vect in enumerate(generated_text):
-        print("{}: {}".format(i,tokenizer.decode(vect, skip_special_tokens=True)))
-        print()
+
+def generate_text(prompt, min_words):
+    i = 1
+
+    prompt_words = 8
+    n_word = 300
+
+    print("\nIteration {}\n".format(i))
     
-    
+    prompt_tokens = tokenizer.encode(prompt, return_tensors='tf')
+    txt_generated = generate(prompt_tokens, n_word)
+    txt = txt_generated[0]
+
+    while len(txt) < min_words:
+        i += 1
+
+        n = len(txt_generated[0]) - prompt_words
+        tokens = txt_generated[0][n:]
+        gen_prompt = tokenizer.decode(tokens, skip_special_tokens=True)
+        prompt_tokens = tokenizer.encode(gen_prompt, return_tensors='tf')
+
+        print("\nIteration {}\n".format(i))
+        
+        txt_generated = generate(prompt_tokens, n_word)
+        txt2 = txt_generated[0][prompt_words:]
+
+        txt = concat([txt, txt2],0)
+
+    gen_text = tokenizer.decode(txt, skip_special_tokens=True)
+    print("\n{}".format(gen_text))
+
+
 if __name__ == "__main__":
-    generate()
+    prompt = 'Awareness came to him slowly, the events of the day slowly fighting their way'
+
+    generate_text(prompt, 1500)

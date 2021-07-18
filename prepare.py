@@ -3,9 +3,11 @@
 
 from sklearn.model_selection import train_test_split
 
+INPUT_FILE = './datasets/FLEUR.txt'
+
 def prepare():
 
-    with open('./datasets/input.txt', 'r') as data:
+    with open(INPUT_FILE, 'r') as data:
         dataset = ["<START>" + x.strip() for x in data.readlines()]
 
     train, eval = train_test_split(dataset, train_size=.9, random_state=2020)

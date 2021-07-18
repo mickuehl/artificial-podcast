@@ -12,8 +12,6 @@ pip install -r requirements.txt
 
 ### Training
 
-
-
 python train.py \
     --save_steps -1 \
     --num_train_epochs 1 \
@@ -27,6 +25,17 @@ python train.py \
     --validation_file "./datasets/eval.txt"
 
 
+python train.py \
+    --save_steps -1 \
+    --num_train_epochs 2 \
+    --per_device_train_batch_size 1 \
+    --model_type gpt2-medium \
+    --model_name_or_path gpt2-medium \
+    --do_train \
+    --output_dir "./datasets/output" \
+    --train_file "./datasets/input.txt"
+
+
 for CUDA devices
 --fp16 \
 
@@ -35,3 +44,8 @@ for CUDA devices
 
 rm -rf /Users/turing/.cache/huggingface/transformers
 rm -rf /Users/turing/.cache/huggingface/datasets
+
+
+### Reference
+
+https://cloud.google.com/ai-platform/docs/getting-started-keras
