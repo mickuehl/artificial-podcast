@@ -27,7 +27,7 @@ python train.py \
 
 python train.py \
     --save_steps -1 \
-    --num_train_epochs 2 \
+    --num_train_epochs 1 \
     --per_device_train_batch_size 1 \
     --model_type gpt2-medium \
     --model_name_or_path gpt2-medium \
@@ -49,3 +49,9 @@ rm -rf /Users/turing/.cache/huggingface/datasets
 ### Reference
 
 https://cloud.google.com/ai-platform/docs/getting-started-keras
+
+https://cloud.google.com/sdk/gcloud/reference/ml-engine
+
+https://cloud.google.com/ai-platform/training/docs/versioning
+
+https://github.com/GoogleCloudPlatform/cloudml-samples/tree/master/tensorflow

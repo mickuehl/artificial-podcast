@@ -17,3 +17,8 @@ datasets/
 # vendor/
 .DS_Store
 *.json
+*.pyc
+__pycache__
+train_file.txt
+training.txt
+stuff.md

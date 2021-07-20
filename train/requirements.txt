@@ -7,9 +7,3 @@ datasets >= 1.8.0
 torch >= 1.8
 sentencepiece > 0.1.92
 transformers == 4.8.*
-accelerate == 0.3.*
-# local dev only
-google-cloud-storage == 1.35.*
-google-cloud-datastore == 2.1.*
-google-cloud-pubsub == 2.2.*
-google-cloud-logging == 1.15.*

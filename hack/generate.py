@@ -8,7 +8,7 @@
 from transformers import TFGPT2LMHeadModel, GPT2Tokenizer
 from tensorflow import concat
 
-model_dir = "./datasets/output"
+model_dir = "../datasets/output"
 
 model = TFGPT2LMHeadModel.from_pretrained(model_dir, from_pt=True)
 tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
@@ -30,16 +30,13 @@ def generate(prompt, max_words):
     return txt
 
 
-def generate_text(prompt, min_words):
+def generate_text(prompt, min_words, prompt_words, gen_batch):
     i = 1
-
-    prompt_words = 8
-    n_word = 300
 
     print("\nIteration {}\n".format(i))
     
     prompt_tokens = tokenizer.encode(prompt, return_tensors='tf')
-    txt_generated = generate(prompt_tokens, n_word)
+    txt_generated = generate(prompt_tokens, gen_batch)
     txt = txt_generated[0]
 
     while len(txt) < min_words:
@@ -52,7 +49,7 @@ def generate_text(prompt, min_words):
 
         print("\nIteration {}\n".format(i))
         
-        txt_generated = generate(prompt_tokens, n_word)
+        txt_generated = generate(prompt_tokens, gen_batch)
         txt2 = txt_generated[0][prompt_words:]
 
         txt = concat([txt, txt2],0)
@@ -64,4 +61,4 @@ def generate_text(prompt, min_words):
 if __name__ == "__main__":
     prompt = 'Awareness came to him slowly, the events of the day slowly fighting their way'
 
-    generate_text(prompt, 1500)
+    generate_text(prompt, 1000, 8, 300)

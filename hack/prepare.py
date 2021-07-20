@@ -3,7 +3,7 @@
 
 from sklearn.model_selection import train_test_split
 
-INPUT_FILE = './datasets/FLEUR.txt'
+INPUT_FILE = '../datasets/input.txt'
 
 def prepare():
 
@@ -14,10 +14,10 @@ def prepare():
     print("training size:" + str(len(train)))
     print("Evaluation size: " + str(len(eval)))
 
-    with open('./datasets/train.txt', 'w') as file_handle:
+    with open('../datasets/train.txt', 'w') as file_handle:
         file_handle.write("<END>".join(train))
 
-    with open('./datasets/eval.txt', 'w') as file_handle:
+    with open('../datasets/eval.txt', 'w') as file_handle:
         file_handle.write("<END>".join(eval))
     
     
